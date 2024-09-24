@@ -5,6 +5,36 @@
     <title>Recipe Home</title>
 </head>
 <body>
+<!--/*@thymesVar id="recipe" type="guru.springframework.domain.Recipe"*/-->
+<!--/*@thymesVar id="ingredient" type="guru.springframework.domain.Ingredient"*/-->
+<!--/*@thymesVar id="difficulty" type="guru.springframework.domain.Difficulty"*/-->
+<!--/*@thymesVar id="notes" type="guru.springframework.domain.Notes"*/-->
+<!--/*@thymesVar id="category" type="guru.springframework.domain.Category"*/-->
+
 <h1>My Recipes!</h1>
+
+<table class="table table-striped">
+
+    <div>
+        <h1>Recipe</h1>
+    </div>
+
+
+    <div th:each="recipe : ${recipes}">
+        <p>-----------------</p>
+        <p th:text="${recipe?.description}">1</p>
+        <p th:text="${recipe?.prepTime}">John</p>
+        <p th:text="${recipe?.cookTime}">Wick</p>
+        <h2>Categories</h2>
+        <div th:each="category : ${recipe?.categories}">
+            <p th:text="${category?.description}">1</p>
+        </div>
+        <div th:each="ingredient:  ${recipe?.ingredients}">
+            <p th:text="${ingredient?.amount} + ' ' + ${ingredient?.uom.description} + ' ' +  ${ingredient?.description}">1</p>
+        </div>
+        <br>
+        </p>
+    </div>
+</table>
 </body>
 </html>
