@@ -5,20 +5,21 @@ import guru.springframework.repositories.CategoryRepository;
 import guru.springframework.repositories.RecipeRepository;
 import guru.springframework.repositories.UnitOfMeasureRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Component
-public class DataLoader implements CommandLineRunner {
+public class DataLoader implements ApplicationListener<ContextRefreshedEvent> {
 
     private final RecipeRepository recipeRepository;
     private final CategoryRepository categoryRepository;
     private final UnitOfMeasureRepository unitOfMeasureRepository;
-
 
     public DataLoader(RecipeRepository recipeRepository, CategoryRepository categoryRepository, UnitOfMeasureRepository unitOfMeasureRepository) {
         this.recipeRepository = recipeRepository;
@@ -27,121 +28,118 @@ public class DataLoader implements CommandLineRunner {
         this.unitOfMeasureRepository = unitOfMeasureRepository;
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        loadData();
-    }
+    private List<Recipe> getRecipes() {
 
-    private void loadData() {
-        //perfet guacamole recipe
-        Recipe perfectGuacamole = new Recipe();
-        perfectGuacamole.setDescription("Perfect guacamole");
+        List<Recipe> recipes = new ArrayList<>(2);
 
-        Set<Category> categorySet = new HashSet<>();
-        categorySet.add(categoryRepository.findByDescription("Mexican").get());
-        perfectGuacamole.setCategories(categorySet);
+        //get UOMs
+        Optional<UnitOfMeasure> eachUomOptional = unitOfMeasureRepository.findByDescription("Each");
 
-        UnitOfMeasure unit = unitOfMeasureRepository.findByDescription("Unit").get();
-        UnitOfMeasure some = unitOfMeasureRepository.findByDescription("Some").get();
-        UnitOfMeasure tablespoon = unitOfMeasureRepository.findByDescription("Tablespoon").get();
-        UnitOfMeasure teaspoon = unitOfMeasureRepository.findByDescription("Teaspoon").get();
-        UnitOfMeasure pinch = unitOfMeasureRepository.findByDescription("Pinch").get();
-        UnitOfMeasure cup = unitOfMeasureRepository.findByDescription("Cup").get();
-        UnitOfMeasure pint = unitOfMeasureRepository.findByDescription("Pint").get();
+        if (!eachUomOptional.isPresent()) {
+            throw new RuntimeException("Expected UOM Not Found");
+        }
 
-        Ingredient avocadoGuacamole = new Ingredient();
-        avocadoGuacamole.setDescription("avocado");
-        avocadoGuacamole.setUom(unit);
-        avocadoGuacamole.setAmount(new BigDecimal(2));
+        Optional<UnitOfMeasure> tableSpoonUomOptional = unitOfMeasureRepository.findByDescription("Tablespoon");
 
-        Ingredient freshLimeGuacamole = new Ingredient();
-        freshLimeGuacamole.setDescription("fresh lime");
-        freshLimeGuacamole.setUom(tablespoon);
-        freshLimeGuacamole.setAmount(new BigDecimal(1));
+        if (!tableSpoonUomOptional.isPresent()) {
+            throw new RuntimeException("Expected UOM Not Found");
+        }
 
-        Ingredient mincedRedOnionGuacamole = new Ingredient();
-        mincedRedOnionGuacamole.setDescription("minced red onion");
-        mincedRedOnionGuacamole.setUom(tablespoon);
-        mincedRedOnionGuacamole.setAmount(new BigDecimal(4));
+        Optional<UnitOfMeasure> teaSpoonUomOptional = unitOfMeasureRepository.findByDescription("Teaspoon");
 
-        Ingredient silantroGuacamole = new Ingredient();
-        silantroGuacamole.setDescription("cilantro");
-        silantroGuacamole.setUom(tablespoon);
-        silantroGuacamole.setAmount(new BigDecimal(2));
+        if (!teaSpoonUomOptional.isPresent()) {
+            throw new RuntimeException("Expected UOM Not Found");
+        }
 
-        Ingredient groundBlackPepperGuacamole = new Ingredient();
-        groundBlackPepperGuacamole.setDescription("ground black pepper");
-        groundBlackPepperGuacamole.setUom(pinch);
-        groundBlackPepperGuacamole.setAmount(new BigDecimal(1));
+        Optional<UnitOfMeasure> dashUomOptional = unitOfMeasureRepository.findByDescription("Dash");
 
-        Ingredient ripeTomatoGuacamole = new Ingredient();
-        ripeTomatoGuacamole.setDescription("ripe tomato, chopped");
-        ripeTomatoGuacamole.setUom(unit);
-        ripeTomatoGuacamole.setAmount(new BigDecimal("0.5"));
+        if (!dashUomOptional.isPresent()) {
+            throw new RuntimeException("Expected UOM Not Found");
+        }
 
-        Ingredient tortillaChipsGuacamole = new Ingredient();
-        tortillaChipsGuacamole.setDescription("Tortilla chips");
-        tortillaChipsGuacamole.setUom(some);
-        tortillaChipsGuacamole.setAmount(new BigDecimal("0.5"));
+        Optional<UnitOfMeasure> pintUomOptional = unitOfMeasureRepository.findByDescription("Pint");
 
-        Set<Ingredient> guacamoleIngredients = new HashSet<>();
-        guacamoleIngredients.add(avocadoGuacamole);
-        guacamoleIngredients.add(freshLimeGuacamole);
-        guacamoleIngredients.add(mincedRedOnionGuacamole);
-        guacamoleIngredients.add(silantroGuacamole);
-        guacamoleIngredients.add(groundBlackPepperGuacamole);
-        guacamoleIngredients.add(ripeTomatoGuacamole);
-        guacamoleIngredients.add(tortillaChipsGuacamole);
+        if (!pintUomOptional.isPresent()) {
+            throw new RuntimeException("Expected UOM Not Found");
+        }
 
-        perfectGuacamole.getIngredients().addAll(guacamoleIngredients);
-        guacamoleIngredients.forEach(ingredient -> {
-            ingredient.setRecipe(perfectGuacamole);
-        });
+        Optional<UnitOfMeasure> cupsUomOptional = unitOfMeasureRepository.findByDescription("Cup");
 
-        perfectGuacamole.setDifficulty(Difficulty.EASY);
-        perfectGuacamole.setCookTime(10);
-        perfectGuacamole.setServings(4);
-        perfectGuacamole.setSource("https://www.simplyrecipes.com/recipes/perfect_guacamole/");
-        perfectGuacamole.setPrepTime(10);
-        perfectGuacamole.setUrl("https://www.simplyrecipes.com/recipes/perfect_guacamole/");
-        perfectGuacamole.setDirections("\n" +
-                "Cut the avocados:\n" +
+        if (!cupsUomOptional.isPresent()) {
+            throw new RuntimeException("Expected UOM Not Found");
+        }
+
+        //get optionals
+        UnitOfMeasure eachUom = eachUomOptional.get();
+        UnitOfMeasure tableSpoonUom = tableSpoonUomOptional.get();
+        UnitOfMeasure teapoonUom = tableSpoonUomOptional.get();
+        UnitOfMeasure dashUom = dashUomOptional.get();
+        UnitOfMeasure pintUom = pintUomOptional.get();
+        UnitOfMeasure cupsUom = cupsUomOptional.get();
+
+        //get Categories
+        Optional<Category> americanCategoryOptional = categoryRepository.findByDescription("American");
+
+        if (!americanCategoryOptional.isPresent()) {
+            throw new RuntimeException("Expected Category Not Found");
+        }
+
+        Optional<Category> mexicanCategoryOptional = categoryRepository.findByDescription("Mexican");
+
+        if (!mexicanCategoryOptional.isPresent()) {
+            throw new RuntimeException("Expected Category Not Found");
+        }
+
+        Category americanCategory = americanCategoryOptional.get();
+        Category mexicanCategory = mexicanCategoryOptional.get();
+
+        //Yummy Guac
+        Recipe guacRecipe = new Recipe();
+        guacRecipe.setDescription("Perfect Guacamole");
+        guacRecipe.setPrepTime(10);
+        guacRecipe.setCookTime(0);
+        guacRecipe.setDifficulty(Difficulty.EASY);
+        guacRecipe.setDirections("1 Cut avocado, remove flesh: Cut the avocados in half. Remove seed. Score the inside of the avocado with a blunt knife and scoop out the flesh with a spoon" +
                 "\n" +
-                "Cut the avocados in half. Remove the pit. Score the inside of the avocado with a blunt knife and scoop out the flesh with a spoon. (See How to Cut and Peel an Avocado.) Place in a bowl.\n" +
-                "How to make guacamole - scoring avocado\n" +
-                "Elise Bauer\n" +
-                "Mash the avocado flesh:\n" +
+                "2 Mash with a fork: Using a fork, roughly mash the avocado. (Don't overdo it! The guacamole should be a little chunky.)" +
                 "\n" +
-                "Using a fork, roughly mash the avocado. Don't overdo it! The guacamole should be a little chunky.\n" +
-                "How to make guacamole - smashing avocado with fork\n" +
-                "Elise Bauer\n" +
-                "Add the remaining ingredients to taste:\n" +
-                "\n" +
-                "Sprinkle with salt and lime (or lemon) juice. The acid in the lime juice will provide some balance to the richness of the avocado and will help delay the avocados from turning brown.\n" +
-                "\n" +
-                "Add the chopped onion, cilantro, black pepper, and chilis. Chili peppers vary individually in their spiciness. So, start with a half of one chili pepper and add more to the guacamole to your desired degree of heat.\n" +
-                "\n" +
+                "3 Add salt, lime juice, and the rest: Sprinkle with salt and lime (or lemon) juice. The acid in the lime juice will provide some balance to the richness of the avocado and will help delay the avocados from turning brown.\n" +
+                "Add the chopped onion, cilantro, black pepper, and chiles. Chili peppers vary individually in their hotness. So, start with a half of one chili pepper and add to the guacamole to your desired degree of hotness.\n" +
                 "Remember that much of this is done to taste because of the variability in the fresh ingredients. Start with this recipe and adjust to your taste.\n" +
-                "Serve immediately:\n" +
+                "4 Cover with plastic and chill to store: Place plastic wrap on the surface of the guacamole cover it and to prevent air reaching it. (The oxygen in the air causes oxidation which will turn the guacamole brown.) Refrigerate until ready to serve.\n" +
+                "Chilling tomatoes hurts their flavor, so if you want to add chopped tomato to your guacamole, add it just before serving.\n" +
                 "\n" +
-                "If making a few hours ahead, place plastic wrap on the surface of the guacamole and press down to cover it to prevent air reaching it. (The oxygen in the air causes oxidation which will turn the guacamole brown.)\n" +
                 "\n" +
-                "Garnish with slices of red radish or jicama strips. Serve with your choice of store-bought tortilla chips or make your own homemade tortilla chips.\n" +
+                "Read more: http://www.simplyrecipes.com/recipes/perfect_guacamole/#ixzz4jvpiV9Sd");
+
+        Notes guacNotes = new Notes();
+        guacNotes.setRecipeNotes("For a very quick guacamole just take a 1/4 cup of salsa and mix it in with your mashed avocados.\n" +
+                "Feel free to experiment! One classic Mexican guacamole has pomegranate seeds and chunks of peaches in it (a Diana Kennedy favorite). Try guacamole with added pineapple, mango, or strawberries.\n" +
+                "The simplest version of guacamole is just mashed avocados with salt. Don't let the lack of availability of other ingredients stop you from making guacamole.\n" +
+                "To extend a limited supply of avocados, add either sour cream or cottage cheese to your guacamole dip. Purists may be horrified, but so what? It tastes great.\n" +
                 "\n" +
-                "Refrigerate leftover guacamole up to 3 days. ");
+                "\n" +
+                "Read more: http://www.simplyrecipes.com/recipes/perfect_guacamole/#ixzz4jvoun5ws");
+        guacNotes.setRecipe(guacRecipe);
+        guacRecipe.setNotes(guacNotes);
 
-        Notes guacamoleNotes = new Notes();
-        guacamoleNotes.setRecipeNotes("Note: Chilling tomatoes dulls their flavor. So, if you want to add chopped tomato to your guacamole, add just before serving. ");
-        perfectGuacamole.setNotes(guacamoleNotes);
+        guacRecipe.getIngredients().add(new Ingredient("ripe avocados", new BigDecimal(2), eachUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("Kosher salt", new BigDecimal(".5"), teapoonUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("fresh lime juice or lemon juice", new BigDecimal(2), tableSpoonUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("minced red onion or thinly sliced green onion", new BigDecimal(2), tableSpoonUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("serrano chiles, stems and seeds removed, minced", new BigDecimal(2), eachUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("Cilantro", new BigDecimal(2), tableSpoonUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("freshly grated black pepper", new BigDecimal(2), dashUom, guacRecipe));
+        guacRecipe.getIngredients().add(new Ingredient("ripe tomato, seeds and pulp removed, chopped", new BigDecimal(".5"), eachUom, guacRecipe));
 
-        recipeRepository.save(perfectGuacamole);
+        guacRecipe.getCategories().add(americanCategory);
+        guacRecipe.getCategories().add(mexicanCategory);
 
-        //taco recipe
+        //add to return list
+        recipes.add(guacRecipe);
+
+        //Yummy Tacos
         Recipe tacosRecipe = new Recipe();
-
-        categorySet.add(categoryRepository.findByDescription("American").get());
-        tacosRecipe.setCategories(categorySet);
-
         tacosRecipe.setDescription("Spicy Grilled Chicken Taco");
         tacosRecipe.setCookTime(9);
         tacosRecipe.setPrepTime(20);
@@ -172,27 +170,36 @@ public class DataLoader implements CommandLineRunner {
         tacoNotes.setRecipe(tacosRecipe);
         tacosRecipe.setNotes(tacoNotes);
 
-        tacosRecipe.getIngredients().add(new Ingredient("Ancho Chili Powder", new BigDecimal(2), tablespoon, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("Dried Oregano", new BigDecimal(1), teaspoon, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("Dried Cumin", new BigDecimal(1), teaspoon, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("Sugar", new BigDecimal(1), teaspoon, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("Salt", new BigDecimal(".5"), teaspoon, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("Clove of Garlic, Choppedr", new BigDecimal(1), unit, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("finely grated orange zestr", new BigDecimal(1), tablespoon, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("fresh-squeezed orange juice", new BigDecimal(3), tablespoon, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("Olive Oil", new BigDecimal(2), tablespoon, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("boneless chicken thighs", new BigDecimal(4), tablespoon, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("small corn tortillasr", new BigDecimal(8), unit, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("packed baby arugula", new BigDecimal(3), cup, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("medium ripe avocados, slic", new BigDecimal(2), unit, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("radishes, thinly sliced", new BigDecimal(4), unit, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("cherry tomatoes, halved", new BigDecimal(".5"), pint, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("red onion, thinly sliced", new BigDecimal(".25"), unit, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("Roughly chopped cilantro", new BigDecimal(4), unit, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("cup sour cream thinned with 1/4 cup milk", new BigDecimal(4), cup, tacosRecipe));
-        tacosRecipe.getIngredients().add(new Ingredient("lime, cut into wedges", new BigDecimal(4), unit, tacosRecipe));
 
-        tacosRecipe.setCategories(categorySet);
-        recipeRepository.save(tacosRecipe);
+        tacosRecipe.getIngredients().add(new Ingredient("Ancho Chili Powder", new BigDecimal(2), tableSpoonUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("Dried Oregano", new BigDecimal(1), teapoonUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("Dried Cumin", new BigDecimal(1), teapoonUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("Sugar", new BigDecimal(1), teapoonUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("Salt", new BigDecimal(".5"), teapoonUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("Clove of Garlic, Choppedr", new BigDecimal(1), eachUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("finely grated orange zestr", new BigDecimal(1), tableSpoonUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("fresh-squeezed orange juice", new BigDecimal(3), tableSpoonUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("Olive Oil", new BigDecimal(2), tableSpoonUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("boneless chicken thighs", new BigDecimal(4), tableSpoonUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("small corn tortillasr", new BigDecimal(8), eachUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("packed baby arugula", new BigDecimal(3), cupsUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("medium ripe avocados, slic", new BigDecimal(2), eachUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("radishes, thinly sliced", new BigDecimal(4), eachUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("cherry tomatoes, halved", new BigDecimal(".5"), pintUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("red onion, thinly sliced", new BigDecimal(".25"), eachUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("Roughly chopped cilantro", new BigDecimal(4), eachUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("cup sour cream thinned with 1/4 cup milk", new BigDecimal(4), cupsUom, tacosRecipe));
+        tacosRecipe.getIngredients().add(new Ingredient("lime, cut into wedges", new BigDecimal(4), eachUom, tacosRecipe));
+
+        tacosRecipe.getCategories().add(americanCategory);
+        tacosRecipe.getCategories().add(mexicanCategory);
+
+        recipes.add(tacosRecipe);
+        return recipes;
+    }
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+        recipeRepository.saveAll(getRecipes());
     }
 }

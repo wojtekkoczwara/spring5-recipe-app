@@ -21,7 +21,6 @@ public class Recipe {
     @Lob
     private String directions;
 
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
     private Set<Ingredient> ingredients = new HashSet<>();
 
@@ -135,7 +134,7 @@ public class Recipe {
     }
 
     public Set<Category> getCategories() {
-        return categories;
+        return categories = new HashSet<>();
     }
 
     public void setCategories(Set<Category> categories) {
