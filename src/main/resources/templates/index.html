@@ -3,38 +3,54 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Recipe Home</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
 </head>
 <body>
-<!--/*@thymesVar id="recipe" type="guru.springframework.domain.Recipe"*/-->
-<!--/*@thymesVar id="ingredient" type="guru.springframework.domain.Ingredient"*/-->
-<!--/*@thymesVar id="difficulty" type="guru.springframework.domain.Difficulty"*/-->
-<!--/*@thymesVar id="notes" type="guru.springframework.domain.Notes"*/-->
-<!--/*@thymesVar id="category" type="guru.springframework.domain.Category"*/-->
 
-<h1>My Recipes!</h1>
+<div class="container-fluid" style="margin-top: 20px">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-primary">
 
-<table class="table table-striped">
-
-    <div>
-        <h1>Recipe</h1>
-    </div>
-
-
-    <div th:each="recipe : ${recipes}">
-        <p>-----------------</p>
-        <p th:text="${recipe?.description}">1</p>
-        <p th:text="${recipe?.prepTime}">John</p>
-        <p th:text="${recipe?.cookTime}">Wick</p>
-        <h2>Categories</h2>
-        <div th:each="category : ${recipe?.categories}">
-            <p th:text="${category?.description}">1</p>
+                <div class="panel-heading">
+                    <h1 class="panel-title">My Recipes!</h1>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive" th:if="${not #lists.isEmpty(recipes)}">
+                        <table class="table table-hover ">
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th>ID</th>
+                                <th>Description</th>
+                            </tr>
+                            </thead>
+                            <tr th:remove="all">
+                                <td th:text="${recipe.id}">123</td>
+                                <td th:text="${recipe.description}">Tasty Goodnees 1</td>
+                            </tr>
+                            <tr th:remove="all">
+                                <td th:text="${recipe.id}">12333</td>
+                                <td th:text="${recipe.description}">Tasty Goodnees 2</td>
+                            </tr>
+                            <tr th:each="recipe : ${recipes}">
+                                <td th:text="${recipe.id}">334</td>
+                                <td th:text="${recipe.description}">Tasty Goodnees 3</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div th:each="ingredient:  ${recipe?.ingredients}">
-            <p th:text="${ingredient?.amount} + ' ' + ${ingredient?.uom.description} + ' ' +  ${ingredient?.description}">1</p>
-        </div>
-        <br>
-        </p>
     </div>
-</table>
+</div>
+
 </body>
 </html>
